@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import PostCard from '../components/PostCard';
 import { Post } from '../types';
+import { API_URL } from '../config/api';
 
 export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -12,7 +13,7 @@ export default function Feed() {
 
   const loadPosts = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/posts/feed');
+      const { data } = await axios.get(`${API_URL}/api/posts/feed`);
       setPosts(data.posts);
     } catch (error) {
       console.error(error);
