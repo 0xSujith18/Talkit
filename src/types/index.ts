@@ -1,9 +1,11 @@
 export interface User {
   id: string;
+  _id?: string;
   username: string;
   name: string;
   email: string;
   bio?: string;
+  phone?: string;
   role: 'citizen' | 'authority' | 'admin';
   isVerified?: boolean;
   avatar?: string;

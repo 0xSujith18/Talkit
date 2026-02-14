@@ -18,7 +18,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const [editCaption, setEditCaption] = useState(post.caption);
   const [showMenu, setShowMenu] = useState(false);
 
-  const isOwner = user?.id === post.user?._id || user?.id === post.user?.id || (user as any)?._id === post.user?._id || (user as any)?._id === post.user?.id;
+  const isOwner = user?.id === (post.user as any)?._id || user?.id === post.user?.id || (user as any)?._id === (post.user as any)?._id || (user as any)?._id === post.user?.id;
 
   const handleEdit = async () => {
     try {

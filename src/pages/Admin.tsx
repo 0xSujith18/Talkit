@@ -39,7 +39,7 @@ export default function Admin() {
     }
   };
 
-  const handleApprove = async (requestId: string, userId: string) => {
+  const handleApprove = async (_requestId: string, userId: string) => {
     try {
       await axios.post(`http://localhost:5000/api/auth/verify-user/${userId}`);
       loadRequests();

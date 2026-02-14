@@ -5,7 +5,7 @@ import axios from 'axios';
 export default function CreatePost() {
   const [caption, setCaption] = useState('');
   const [mediaPreview, setMediaPreview] = useState<string>('');
-  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [_mediaFile, setMediaFile] = useState<File | null>(null);
   const navigate = useNavigate();
 
   const handleMediaChange = (e: ChangeEvent<HTMLInputElement>) => {

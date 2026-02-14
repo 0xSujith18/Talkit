@@ -13,7 +13,7 @@ export default function Profile() {
 
   useEffect(() => {
     const userId = user?.id || (user as any)?._id;
-    if (userId) {
+    if (userId && user) {
       loadUserPosts();
       setFormData({ username: user.username, name: user.name, bio: user.bio || '' });
     }
