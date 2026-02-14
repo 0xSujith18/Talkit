@@ -342,4 +342,6 @@ app.delete('/api/auth/account', auth, async (req, res) => {
   }
 });
 
-module.exports = app;
+module.exports = (req, res) => {
+  return app(req, res);
+};
