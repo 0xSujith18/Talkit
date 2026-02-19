@@ -5,6 +5,8 @@ import { connectDB } from './config/db.js';
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import notificationRoutes from './routes/notifications.js';
+import reportRoutes from './routes/reports.js';
+import moderationRoutes from './routes/moderation.js';
 import { deleteScheduledUsers } from './jobs/deleteScheduledUsers.js';
 
 dotenv.config();
@@ -18,6 +20,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/moderation', moderationRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Talkit API Running' });

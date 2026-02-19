@@ -3,10 +3,11 @@ import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
 import Notification from '../models/Notification.js';
 import { auth, authorityOnly, AuthRequest } from '../middleware/auth.js';
+import { rateLimit } from '../middleware/rateLimit.js';
 
 const router = Router();
 
-router.post('/', auth, async (req: AuthRequest, res) => {
+router.post('/', auth, rateLimit(10, 60000), async (req: AuthRequest, res) => {
   try {
     const { caption, media, location, category, hashtags } = req.body;
     

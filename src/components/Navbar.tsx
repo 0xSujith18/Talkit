@@ -20,6 +20,10 @@ export default function Navbar() {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Link to="/feed" style={{ padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: 600, background: isActive('/feed') ? 'var(--accent)' : 'transparent', color: isActive('/feed') ? 'white' : 'var(--text-primary)' }}>Home</Link>
           <Link to="/trending" style={{ padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: 600, background: isActive('/trending') ? 'var(--accent)' : 'transparent', color: isActive('/trending') ? 'white' : 'var(--text-primary)' }}>Trending</Link>
+          <Link to="/reports" style={{ padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: 600, background: isActive('/reports') ? 'var(--accent)' : 'transparent', color: isActive('/reports') ? 'white' : 'var(--text-primary)' }}>Reports</Link>
+          {(user?.role === 'authority' || user?.role === 'admin') && (
+            <Link to="/authority" style={{ padding: '10px 20px', borderRadius: '10px', textDecoration: 'none', fontWeight: 600, background: isActive('/authority') ? 'var(--accent)' : 'transparent', color: isActive('/authority') ? 'white' : 'var(--text-primary)' }}>Dashboard</Link>
+          )}
           <Link to="/create" style={{ padding: '10px 24px', borderRadius: '10px', textDecoration: 'none', background: 'var(--accent)', color: 'white', fontWeight: 700, marginLeft: '8px' }}>+ Create</Link>
         </div>
 

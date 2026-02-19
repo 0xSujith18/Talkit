@@ -13,6 +13,8 @@ export interface IPost extends Document {
   likes: mongoose.Types.ObjectId[];
   status: 'pending' | 'in_progress' | 'resolved';
   visibilityScore: number;
+  isAnonymous: boolean;
+  reportCount: number;
 }
 
 const postSchema = new Schema<IPost>({
@@ -27,7 +29,9 @@ const postSchema = new Schema<IPost>({
   hashtags: [String],
   likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   status: { type: String, enum: ['pending', 'in_progress', 'resolved'], default: 'pending' },
-  visibilityScore: { type: Number, default: 0 }
+  visibilityScore: { type: Number, default: 0 },
+  isAnonymous: { type: Boolean, default: false },
+  reportCount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 postSchema.index({ hashtags: 1 });

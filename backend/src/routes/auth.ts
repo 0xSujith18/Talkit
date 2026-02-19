@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import User from '../models/User.js';
 import Post from '../models/Post.js';
 import Comment from '../models/Comment.js';
 import Notification from '../models/Notification.js';
 import VerificationRequest from '../models/VerificationRequest.js';
+import PasswordReset from '../models/PasswordReset.js';
 import { auth, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
@@ -167,6 +169,55 @@ router.delete('/account', auth, async (req: AuthRequest, res) => {
     });
     
     res.json({ message: 'Account scheduled for deletion in 7 days' });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.json({ message: 'If email exists, reset link will be sent' });
+    }
+    
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 3600000); // 1 hour
+    
+    await PasswordReset.create({ user: user._id, token, expiresAt });
+    
+    // TODO: Send email with reset link
+    // const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
+    
+    res.json({ message: 'If email exists, reset link will be sent' });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    
+    const resetRequest = await PasswordReset.findOne({ 
+      token, 
+      expiresAt: { $gt: new Date() } 
+    });
+    
+    if (!resetRequest) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+    
+    const user = await User.findById(resetRequest.user);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    
+    user.password = newPassword;
+    await user.save();
+    await PasswordReset.deleteMany({ user: user._id });
+    
+    res.json({ message: 'Password reset successful' });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
