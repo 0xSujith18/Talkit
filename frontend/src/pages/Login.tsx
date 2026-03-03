@@ -1,5 +1,5 @@
 import { useState, FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
@@ -10,12 +10,14 @@ export default function Login() {
   const { login } = useAuth();
   const { isDark } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as any)?.from?.pathname || '/feed';
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate('/');
+      navigate(from, { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Login failed');
     }

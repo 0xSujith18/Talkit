@@ -19,7 +19,7 @@ export default function Register() {
     try {
       const { confirmPassword, ...userData } = formData;
       await register(userData);
-      navigate('/');
+      navigate('/feed', { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Registration failed');
     }
