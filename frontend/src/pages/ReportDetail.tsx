@@ -53,97 +53,101 @@ export default function ReportDetail() {
     }
   };
 
-  if (loading) return <div className="text-center p-8">Loading...</div>;
-  if (!report) return <div className="text-center p-8">Report not found</div>;
+  if (loading) return <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-primary)' }}>Loading...</div>;
+  if (!report) return <div style={{ textAlign: 'center', padding: '32px', color: 'var(--text-primary)' }}>Report not found</div>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <button onClick={() => navigate('/reports')} className="mb-4 text-blue-600 hover:underline">
+    <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '24px' }}>
+      <button onClick={() => navigate('/reports')} style={{ marginBottom: '16px', color: 'var(--accent)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '14px' }}>
         ← Back to Reports
       </button>
 
-      <div className="bg-white rounded-lg shadow-lg p-8">
-        <div className="flex justify-between items-start mb-6">
+      <div className="card" style={{ padding: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <h1 className="text-3xl font-bold mb-2">{report.title}</h1>
-            <p className="text-gray-500">Report ID: {report.reportId}</p>
+            <h1 style={{ fontSize: '32px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>{report.title}</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>Report ID: <span style={{ fontWeight: 600, color: 'var(--accent)' }}>{report.reportId}</span></p>
           </div>
-          <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(report.status)}`}>
-            {report.status.replace('_', ' ').toUpperCase()}
+          <span style={{ padding: '10px 20px', borderRadius: '24px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', background: report.status === 'pending' ? '#fef3c7' : report.status === 'in_progress' ? '#dbeafe' : '#d1fae5', color: report.status === 'pending' ? '#92400e' : report.status === 'in_progress' ? '#1e40af' : '#065f46' }}>
+            {report.status.replace('_', ' ')}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px', padding: '20px', background: 'var(--bg-primary)', borderRadius: '12px' }}>
           <div>
-            <p className="font-semibold text-gray-600">Category</p>
-            <p className="capitalize">{report.category}</p>
+            <p style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>CATEGORY</p>
+            <p style={{ textTransform: 'capitalize', color: 'var(--text-primary)', fontWeight: 600 }}>{report.category}</p>
           </div>
           <div>
-            <p className="font-semibold text-gray-600">Privacy</p>
-            <p className="capitalize">{report.privacy.replace('_', ' ')}</p>
+            <p style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>PRIVACY</p>
+            <p style={{ textTransform: 'capitalize', color: 'var(--text-primary)', fontWeight: 600 }}>{report.privacy.replace('_', ' ')}</p>
           </div>
           <div>
-            <p className="font-semibold text-gray-600">Reported By</p>
-            <p>{report.user.name}</p>
+            <p style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>REPORTED BY</p>
+            <p style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{report.user.name}</p>
           </div>
           <div>
-            <p className="font-semibold text-gray-600">Date</p>
-            <p>{new Date(report.createdAt).toLocaleDateString()}</p>
+            <p style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '12px', marginBottom: '4px' }}>DATE</p>
+            <p style={{ color: 'var(--text-primary)', fontWeight: 600 }}>{new Date(report.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
 
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Description</h2>
-          <p className="text-gray-700 whitespace-pre-wrap">{report.description}</p>
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>Description</h2>
+          <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{report.description}</p>
         </div>
 
-        <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Location</h2>
-          <p className="text-gray-700">{report.location.address}</p>
-          <p className="text-sm text-gray-500">
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>📍 Location</h2>
+          <p style={{ color: 'var(--text-primary)', fontWeight: 600, marginBottom: '4px' }}>{report.location.address}</p>
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
             Coordinates: {report.location.coordinates.lat.toFixed(6)}, {report.location.coordinates.lng.toFixed(6)}
           </p>
         </div>
 
         {report.media.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-3">Photos</h2>
-            <div className="grid grid-cols-2 gap-4">
+          <div style={{ marginBottom: '24px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>📸 Evidence Photos</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
               {report.media.map((img, i) => (
-                <img key={i} src={img} alt={`Evidence ${i + 1}`} className="w-full h-64 object-cover rounded-lg" />
+                <img key={i} src={img} alt={`Evidence ${i + 1}`} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '12px', border: '2px solid var(--border)' }} />
               ))}
             </div>
           </div>
         )}
 
-        {report.mla && (
-          <div className="mb-4">
-            <p className="font-semibold text-gray-600">MLA</p>
-            <p>{report.mla}</p>
-          </div>
-        )}
-
-        {report.civicBody && (
-          <div className="mb-4">
-            <p className="font-semibold text-gray-600">Civic Body</p>
-            <p>{report.civicBody}</p>
+        {(report.mla || report.civicBody) && (
+          <div style={{ marginBottom: '24px', padding: '16px', background: 'var(--bg-primary)', borderRadius: '12px' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: 'var(--text-primary)' }}>🏛️ Authority Information</h2>
+            {report.mla && (
+              <div style={{ marginBottom: '8px' }}>
+                <p style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '12px' }}>MLA</p>
+                <p style={{ color: 'var(--text-primary)' }}>{report.mla}</p>
+              </div>
+            )}
+            {report.civicBody && (
+              <div>
+                <p style={{ fontWeight: 600, color: 'var(--text-secondary)', fontSize: '12px' }}>CIVIC BODY</p>
+                <p style={{ color: 'var(--text-primary)' }}>{report.civicBody}</p>
+              </div>
+            )}
           </div>
         )}
 
         {report.actionProof && report.actionProof.length > 0 && (
-          <div className="mb-6 border-t pt-6">
-            <h2 className="text-xl font-semibold mb-3 text-green-700">Action Taken</h2>
-            <div className="grid grid-cols-2 gap-4">
+          <div style={{ marginBottom: '24px', padding: '20px', background: '#d1fae5', borderRadius: '12px', border: '2px solid #10b981' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#065f46' }}>✅ Action Taken</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
               {report.actionProof.map((img, i) => (
-                <img key={i} src={img} alt={`Action proof ${i + 1}`} className="w-full h-64 object-cover rounded-lg" />
+                <img key={i} src={img} alt={`Action proof ${i + 1}`} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '12px', border: '2px solid #10b981' }} />
               ))}
             </div>
           </div>
         )}
 
         {report.publishedToFeed && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-green-800">✓ This report has been published to the public feed</p>
+          <div style={{ background: '#d1fae5', border: '2px solid #10b981', borderRadius: '12px', padding: '16px' }}>
+            <p style={{ color: '#065f46', fontWeight: 600 }}>✓ This report has been published to the public feed</p>
           </div>
         )}
       </div>
