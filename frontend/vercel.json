@@ -1,0 +1,10 @@
+{
+  "github": {
+    "silent": true
+  },
+  "build": {
+    "env": {
+      "VITE_API_URL": "https://talkit-1.onrender.com/api"
+    }
+  }
+}
