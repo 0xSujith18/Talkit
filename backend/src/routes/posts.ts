@@ -11,6 +11,8 @@ router.post('/', auth, rateLimit(10, 60000), async (req: AuthRequest, res) => {
   try {
     const { caption, media, location, category, hashtags } = req.body;
     
+    console.log('Creating post:', { caption, mediaCount: media?.length, category });
+    
     const post = new Post({
       user: req.user!._id,
       caption,
@@ -25,6 +27,7 @@ router.post('/', auth, rateLimit(10, 60000), async (req: AuthRequest, res) => {
     
     res.status(201).json(post);
   } catch (error) {
+    console.error('Post creation error:', error);
     res.status(500).json({ error: (error as Error).message });
   }
 });

@@ -24,6 +24,12 @@ export default function CreatePost() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    if (!caption.trim()) {
+      alert('Please write a caption');
+      return;
+    }
+    
     setUploading(true);
     try {
       const hashtags = caption.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
@@ -42,9 +48,10 @@ export default function CreatePost() {
       });
       
       navigate('/feed');
-    } catch (error) {
-      console.error(error);
-      alert('Failed to create post');
+    } catch (error: any) {
+      console.error('Post creation error:', error);
+      const errorMsg = error.response?.data?.error || error.message || 'Failed to create post';
+      alert(errorMsg);
     } finally {
       setUploading(false);
     }
