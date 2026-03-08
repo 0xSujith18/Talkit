@@ -45,8 +45,12 @@ router.post('/login', async (req, res) => {
     const { email, password } = req.body;
     
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    if (!user) {
+      return res.status(401).json({ error: 'Email not found' });
+    }
+    
+    if (!(await user.comparePassword(password))) {
+      return res.status(401).json({ error: 'Incorrect password' });
     }
     
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '30d' });
