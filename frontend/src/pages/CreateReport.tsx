@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../config/api';
+import { uploadMultipleImages } from '../utils/uploadImage';
 
 const categories = [
   'infrastructure',
@@ -22,11 +23,12 @@ export default function CreateReport() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [mediaPreviews, setMediaPreviews] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     category: 'infrastructure',
     title: '',
     description: '',
-    media: [] as string[],
     location: {
       address: '',
       coordinates: { lat: 0, lng: 0 }
@@ -59,7 +61,10 @@ export default function CreateReport() {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      const readers = Array.from(files).map(file => {
+      const filesArray = Array.from(files);
+      setMediaFiles([...mediaFiles, ...filesArray]);
+      
+      const readers = filesArray.map(file => {
         return new Promise<string>((resolve) => {
           const reader = new FileReader();
           reader.onloadend = () => resolve(reader.result as string);
@@ -68,7 +73,7 @@ export default function CreateReport() {
       });
       
       Promise.all(readers).then(images => {
-        setFormData({ ...formData, media: [...formData.media, ...images] });
+        setMediaPreviews([...mediaPreviews, ...images]);
       });
     }
   };
@@ -76,7 +81,7 @@ export default function CreateReport() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.media.length === 0) {
+    if (mediaFiles.length === 0) {
       alert('At least one photo is required');
       return;
     }
@@ -88,7 +93,13 @@ export default function CreateReport() {
     
     setLoading(true);
     try {
-      const { data } = await api.post('/reports', formData);
+      const mediaUrls = await uploadMultipleImages(mediaFiles);
+      
+      const { data } = await api.post('/reports', {
+        ...formData,
+        media: mediaUrls
+      });
+      
       alert(`Report created successfully! Report ID: ${data.reportId}`);
       navigate('/reports');
     } catch (error: any) {
@@ -149,9 +160,9 @@ export default function CreateReport() {
             onChange={handleImageUpload}
             className="w-full p-3 border rounded-lg"
           />
-          {formData.media.length > 0 && (
+          {mediaPreviews.length > 0 && (
             <div className="mt-2 flex gap-2 flex-wrap">
-              {formData.media.map((img, i) => (
+              {mediaPreviews.map((img, i) => (
                 <img key={i} src={img} alt="" className="w-20 h-20 object-cover rounded" />
               ))}
             </div>

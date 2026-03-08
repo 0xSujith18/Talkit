@@ -1,11 +1,13 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../config/api';
+import { uploadImage } from '../utils/uploadImage';
 
 export default function CreatePost() {
   const [caption, setCaption] = useState('');
   const [mediaPreview, setMediaPreview] = useState<string>('');
-  const [_mediaFile, setMediaFile] = useState<File | null>(null);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
   const handleMediaChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -22,23 +24,29 @@ export default function CreatePost() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setUploading(true);
     try {
-      const token = localStorage.getItem('token');
       const hashtags = caption.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-      const postData = {
+      
+      let mediaUrls: string[] = [];
+      if (mediaFile) {
+        const url = await uploadImage(mediaFile);
+        mediaUrls = [url];
+      }
+      
+      await api.post('/posts', {
         caption,
         category: 'complaint',
         hashtags,
-        media: mediaPreview ? [mediaPreview] : []
-      };
-      
-      await axios.post('http://localhost:5000/api/posts', postData, {
-        headers: { Authorization: `Bearer ${token}` }
+        media: mediaUrls
       });
-      navigate('/');
+      
+      navigate('/feed');
     } catch (error) {
       console.error(error);
       alert('Failed to create post');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -86,7 +94,9 @@ export default function CreatePost() {
             style={{ resize: 'none' }}
           />
           
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '8px' }}>Share</button>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '8px' }} disabled={uploading}>
+            {uploading ? 'Uploading...' : 'Share'}
+          </button>
         </form>
       </div>
     </div>
