@@ -18,6 +18,7 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
 
+// Talkit - Civic Engagement Platform
 function App() {
   return (
     <ThemeProvider>
