@@ -231,7 +231,7 @@ export default function Reports() {
           </div>
         </div>
       ) : (
-        <div style={{ display: viewMode === 'grid' ? 'grid' : 'flex', gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(300px, 1fr))' : 'none', flexDirection: viewMode === 'list' ? 'column' : 'none', gap: '16px' }}>
+        <div style={{ display: viewMode === 'grid' ? 'grid' : 'flex', gridTemplateColumns: viewMode === 'grid' ? 'repeat(auto-fill, minmax(300px, 1fr))' : undefined, flexDirection: viewMode === 'list' ? 'column' : undefined, gap: '16px' }}>
           {filteredReports.map((report) => (
             <div key={report._id} className="card" style={{ padding: '20px', transition: 'transform 0.2s', cursor: 'pointer' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
