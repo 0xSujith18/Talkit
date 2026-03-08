@@ -7,6 +7,7 @@ import postRoutes from './routes/posts.js';
 import notificationRoutes from './routes/notifications.js';
 import reportRoutes from './routes/reports.js';
 import moderationRoutes from './routes/moderation.js';
+import uploadRoutes from './routes/upload.js';
 import { deleteScheduledUsers } from './jobs/deleteScheduledUsers.js';
 
 dotenv.config();
@@ -25,6 +26,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/moderation', moderationRoutes);
+app.use('/api/upload', uploadRoutes);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Talkit API Running' });
