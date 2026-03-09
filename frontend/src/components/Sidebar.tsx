@@ -54,12 +54,12 @@ export default function Sidebar() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '16px',
-                padding: '12px 16px',
+                gap: '12px',
+                padding: '14px 10px',
                 borderRadius: '8px',
                 textDecoration: 'none',
                 color: active ? 'var(--accent)' : 'var(--text-secondary)',
-                fontSize: '15px',
+                fontSize: '16px',
                 fontWeight: active ? 700 : 500,
                 marginBottom: '4px',
                 background: active ? 'rgba(24, 119, 242, 0.1)' : 'transparent',
@@ -68,7 +68,7 @@ export default function Sidebar() {
               onMouseEnter={(e) => !active && (e.currentTarget.style.background = 'var(--hover)')}
               onMouseLeave={(e) => !active && (e.currentTarget.style.background = 'transparent')}
             >
-              <span style={{ fontSize: '20px', filter: active ? 'none' : 'grayscale(100%) opacity(0.7)' }}>
+              <span style={{ fontSize: '22px', filter: active ? 'none' : 'grayscale(100%) opacity(0.7)' }}>
                 {item.icon}
               </span>
               <span>{item.label}</span>
