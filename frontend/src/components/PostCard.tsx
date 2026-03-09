@@ -135,7 +135,9 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             {post.user?.isVerified && <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent)"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
           </div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
-            {post.repostOf ? `Reposted from @${post.repostOf.user.username}` : `@${post.user?.username}`}
+            {post.repostOf && typeof post.repostOf === 'object' && post.repostOf.user
+              ? `Reposted from @${post.repostOf.user.username}`
+              : `@${post.user?.username || 'user'}`}
           </span>
         </div>
         {isOwner && (

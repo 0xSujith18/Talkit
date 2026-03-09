@@ -231,7 +231,7 @@ export default function Settings() {
               <div key={comment._id} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ fontSize: '14px', marginBottom: '4px' }}>{comment.text}</div>
                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                  On post: {comment.post?.caption || 'Deleted Post'} by @{comment.post?.user?.username}
+                  On post: {comment.post?.caption || 'Deleted Post'} by @{comment.post?.user && typeof comment.post.user === 'object' ? (comment.post.user as any).username : 'user'}
                 </div>
               </div>
             ))}
