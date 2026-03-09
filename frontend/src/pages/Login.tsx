@@ -48,6 +48,9 @@ export default function Login() {
             {error && <p style={{ color: 'var(--error)', fontSize: '12px', marginBottom: '12px' }}>{error}</p>}
             <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '8px', marginTop: '8px' }}>Log in</button>
           </form>
+          <div style={{ marginTop: '16px' }}>
+            <Link to="/forgot-password" style={{ fontSize: '12px', color: 'var(--text-secondary)', textDecoration: 'none' }}>Forgot password?</Link>
+          </div>
         </div>
         <div className="card" style={{ padding: '24px', textAlign: 'center' }}>
           <span style={{ fontSize: '14px' }}>Don't have an account? </span>

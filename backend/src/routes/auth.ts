@@ -9,31 +9,42 @@ import VerificationRequest from '../models/VerificationRequest.js';
 import PasswordReset from '../models/PasswordReset.js';
 import { auth, AuthRequest } from '../middleware/auth.js';
 
+import nodemailer from 'nodemailer';
+
 const router = Router();
+
+// Create email transporter
+const transporter = nodemailer.createTransport({
+  service: process.env.EMAIL_SERVICE || 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
 
 router.post('/register', async (req, res) => {
   try {
     const { username, name, email, password, phone, role } = req.body;
-    
+
     const exists = await User.findOne({ $or: [{ email }, { username }] });
     if (exists) return res.status(400).json({ error: 'Email or username already registered' });
-    
+
     const user = new User({ username, name, email, password, phone, role });
     await user.save();
-    
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '30d' });
-    
-    res.status(201).json({ 
-      token, 
-      user: { 
-        id: user._id, 
+
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id,
         username: user.username,
-        name: user.name, 
-        email: user.email, 
+        name: user.name,
+        email: user.email,
         role: user.role,
         bio: user.bio,
         isVerified: user.isVerified
-      } 
+      }
     });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -43,29 +54,29 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ error: 'Email not found' });
     }
-    
+
     if (!(await user.comparePassword(password))) {
       return res.status(401).json({ error: 'Incorrect password' });
     }
-    
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET!, { expiresIn: '30d' });
-    
-    res.json({ 
-      token, 
-      user: { 
-        id: user._id, 
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
         username: user.username,
-        name: user.name, 
-        email: user.email, 
+        name: user.name,
+        email: user.email,
         role: user.role,
         bio: user.bio,
         isVerified: user.isVerified
-      } 
+      }
     });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -95,7 +106,7 @@ router.patch('/profile', auth, async (req: AuthRequest, res) => {
       { username, name, bio, phone, location },
       { new: true }
     ).select('-password');
-    
+
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -167,11 +178,11 @@ router.delete('/account', auth, async (req: AuthRequest, res) => {
   try {
     const deletionDate = new Date();
     deletionDate.setDate(deletionDate.getDate() + 7);
-    
-    await User.findByIdAndUpdate(req.user!._id, { 
-      deletionScheduledAt: deletionDate 
+
+    await User.findByIdAndUpdate(req.user!._id, {
+      deletionScheduledAt: deletionDate
     });
-    
+
     res.json({ message: 'Account scheduled for deletion in 7 days' });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -182,19 +193,44 @@ router.post('/forgot-password', async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    
+
     if (!user) {
       return res.json({ message: 'If email exists, reset link will be sent' });
     }
-    
+
     const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date(Date.now() + 3600000); // 1 hour
-    
+
     await PasswordReset.create({ user: user._id, token, expiresAt });
-    
-    // TODO: Send email with reset link
-    // const resetLink = `${process.env.FRONTEND_URL}/reset-password/${token}`;
-    
+
+    const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password/${token}`;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Talkit Password Reset',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #bc1888;">Talkit Password Reset</h2>
+          <p>Hello ${user.name},</p>
+          <p>We received a request to reset your password. Click the button below to set a new one:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" style="background-color: #bc1888; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Reset Password</a>
+          </div>
+          <p>If you didn't request this, you can safely ignore this email. The link will expire in 1 hour.</p>
+          <p>Best regards,<br>The Talkit Team</p>
+        </div>
+      `
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      console.log('Reset email sent to:', email);
+    } catch (mailError) {
+      console.error('Error sending email:', mailError);
+      // We still return success to the user for security/privacy reasons
+    }
+
     res.json({ message: 'If email exists, reset link will be sent' });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -204,23 +240,23 @@ router.post('/forgot-password', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, newPassword } = req.body;
-    
-    const resetRequest = await PasswordReset.findOne({ 
-      token, 
-      expiresAt: { $gt: new Date() } 
+
+    const resetRequest = await PasswordReset.findOne({
+      token,
+      expiresAt: { $gt: new Date() }
     });
-    
+
     if (!resetRequest) {
       return res.status(400).json({ error: 'Invalid or expired token' });
     }
-    
+
     const user = await User.findById(resetRequest.user);
     if (!user) return res.status(404).json({ error: 'User not found' });
-    
+
     user.password = newPassword;
     await user.save();
     await PasswordReset.deleteMany({ user: user._id });
-    
+
     res.json({ message: 'Password reset successful' });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
