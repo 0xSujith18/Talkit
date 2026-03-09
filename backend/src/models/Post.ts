@@ -15,6 +15,7 @@ export interface IPost extends Document {
   visibilityScore: number;
   isAnonymous: boolean;
   reportCount: number;
+  repostOf?: mongoose.Types.ObjectId;
 }
 
 const postSchema = new Schema<IPost>({
@@ -31,7 +32,8 @@ const postSchema = new Schema<IPost>({
   status: { type: String, enum: ['pending', 'in_progress', 'resolved'], default: 'pending' },
   visibilityScore: { type: Number, default: 0 },
   isAnonymous: { type: Boolean, default: false },
-  reportCount: { type: Number, default: 0 }
+  reportCount: { type: Number, default: 0 },
+  repostOf: { type: Schema.Types.ObjectId, ref: 'Post' }
 }, { timestamps: true });
 
 postSchema.index({ hashtags: 1 });

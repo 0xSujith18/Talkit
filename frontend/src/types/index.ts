@@ -26,6 +26,7 @@ export interface Post {
   status: 'pending' | 'in_progress' | 'resolved';
   visibilityScore: number;
   createdAt: string;
+  repostOf?: Post;
 }
 
 export interface Comment {

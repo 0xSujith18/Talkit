@@ -10,9 +10,9 @@ const router = Router();
 router.post('/', auth, rateLimit(10, 60000), async (req: AuthRequest, res) => {
   try {
     const { caption, media, location, category, hashtags } = req.body;
-    
+
     console.log('Creating post:', { caption, mediaCount: media?.length, category });
-    
+
     const post = new Post({
       user: req.user!._id,
       caption,
@@ -21,10 +21,10 @@ router.post('/', auth, rateLimit(10, 60000), async (req: AuthRequest, res) => {
       category,
       hashtags: hashtags?.map((tag: string) => tag.toLowerCase())
     });
-    
+
     await post.save();
     await post.populate('user', 'name email role isVerified');
-    
+
     res.status(201).json(post);
   } catch (error) {
     console.error('Post creation error:', error);
@@ -39,13 +39,13 @@ router.patch('/:id', auth, async (req: AuthRequest, res) => {
     if (post.user.toString() !== req.user!._id.toString()) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
-    
+
     const { caption, hashtags } = req.body;
     post.caption = caption;
     post.hashtags = hashtags;
     await post.save();
     await post.populate('user', 'name email role isVerified avatar');
-    
+
     res.json(post);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -59,10 +59,10 @@ router.delete('/:id', auth, async (req: AuthRequest, res) => {
     if (post.user.toString() !== req.user!._id.toString()) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
-    
+
     await Post.findByIdAndDelete(req.params.id);
     await Comment.deleteMany({ post: req.params.id });
-    
+
     res.json({ message: 'Post deleted' });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -72,15 +72,15 @@ router.delete('/:id', auth, async (req: AuthRequest, res) => {
 router.get('/feed', auth, async (req, res) => {
   try {
     const { page = 1, limit = 20 } = req.query;
-    
+
     const posts = await Post.find()
       .populate('user', 'name email role isVerified avatar')
       .sort({ createdAt: -1 })
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit));
-    
+
     const total = await Post.countDocuments();
-    
+
     res.json({ posts, total, pages: Math.ceil(total / Number(limit)) });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -93,8 +93,80 @@ router.get('/trending', auth, async (req, res) => {
       .populate('user', 'name email role isVerified avatar')
       .sort({ visibilityScore: -1, createdAt: -1 })
       .limit(20);
-    
+
     res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.get('/liked', auth, async (req: AuthRequest, res) => {
+  try {
+    const posts = await Post.find({ likes: req.user!._id })
+      .populate('user', 'name email role isVerified avatar')
+      .sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.get('/my-comments', auth, async (req: AuthRequest, res) => {
+  try {
+    const comments = await Comment.find({ user: req.user!._id })
+      .populate({
+        path: 'post',
+        populate: { path: 'user', select: 'name username' }
+      })
+      .sort({ createdAt: -1 });
+    res.json(comments);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.get('/my-reposts', auth, async (req: AuthRequest, res) => {
+  try {
+    const posts = await Post.find({ user: req.user!._id, repostOf: { $exists: true } })
+      .populate('user', 'name email role isVerified avatar')
+      .populate({
+        path: 'repostOf',
+        populate: { path: 'user', select: 'name username' }
+      })
+      .sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.post('/:id/repost', auth, async (req: AuthRequest, res) => {
+  try {
+    const originalPost = await Post.findById(req.params.id);
+    if (!originalPost) return res.status(404).json({ error: 'Post not found' });
+
+    const repost = new Post({
+      user: req.user!._id,
+      caption: req.body.caption || originalPost.caption,
+      media: originalPost.media,
+      category: originalPost.category,
+      hashtags: originalPost.hashtags,
+      repostOf: originalPost._id
+    });
+
+    await repost.save();
+
+    if (originalPost.user.toString() !== req.user!._id.toString()) {
+      await Notification.create({
+        user: originalPost.user,
+        type: 'status_update',
+        post: originalPost._id,
+        from: req.user!._id,
+        message: `${req.user!.name} reposted your post`
+      });
+    }
+
+    res.status(201).json(repost);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
@@ -104,7 +176,7 @@ router.post('/:id/like', auth, async (req: AuthRequest, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    
+
     const index = post.likes.indexOf(req.user!._id);
     if (index > -1) {
       post.likes.splice(index, 1);
@@ -112,7 +184,7 @@ router.post('/:id/like', auth, async (req: AuthRequest, res) => {
     } else {
       post.likes.push(req.user!._id);
       post.visibilityScore += 1;
-      
+
       if (post.user.toString() !== req.user!._id.toString()) {
         await Notification.create({
           user: post.user,
@@ -123,7 +195,7 @@ router.post('/:id/like', auth, async (req: AuthRequest, res) => {
         });
       }
     }
-    
+
     await post.save();
     res.json(post);
   } catch (error) {
@@ -135,20 +207,20 @@ router.post('/:id/comment', auth, async (req: AuthRequest, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    
+
     const comment = new Comment({
       post: post._id,
       user: req.user!._id,
       text: req.body.text,
       isAuthorityResponse: req.user!.role === 'authority'
     });
-    
+
     await comment.save();
     await comment.populate('user', 'name email role isVerified avatar');
-    
+
     post.visibilityScore += 2;
     await post.save();
-    
+
     if (post.user.toString() !== req.user!._id.toString()) {
       await Notification.create({
         user: post.user,
@@ -158,7 +230,7 @@ router.post('/:id/comment', auth, async (req: AuthRequest, res) => {
         message: `${req.user!.name} commented on your post`
       });
     }
-    
+
     res.status(201).json(comment);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -170,7 +242,7 @@ router.get('/:id/comments', auth, async (req, res) => {
     const comments = await Comment.find({ post: req.params.id })
       .populate('user', 'name email role isVerified avatar')
       .sort({ createdAt: -1 });
-    
+
     res.json(comments);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -184,9 +256,9 @@ router.patch('/:id/status', auth, authorityOnly, async (req: AuthRequest, res) =
       { status: req.body.status },
       { new: true }
     ).populate('user', 'name email role isVerified');
-    
+
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    
+
     await Notification.create({
       user: post.user._id,
       type: 'status_update',
@@ -194,7 +266,7 @@ router.patch('/:id/status', auth, authorityOnly, async (req: AuthRequest, res) =
       from: req.user!._id,
       message: `Your post status updated to ${req.body.status}`
     });
-    
+
     res.json(post);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -206,7 +278,7 @@ router.get('/hashtag/:tag', auth, async (req, res) => {
     const posts = await Post.find({ hashtags: req.params.tag.toLowerCase() })
       .populate('user', 'name email role isVerified avatar')
       .sort({ createdAt: -1 });
-    
+
     res.json(posts);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
@@ -218,7 +290,7 @@ router.get('/user/:userId', auth, async (req, res) => {
     const posts = await Post.find({ user: req.params.userId })
       .populate('user', 'name email role isVerified avatar')
       .sort({ createdAt: -1 });
-    
+
     res.json(posts);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });

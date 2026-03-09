@@ -28,7 +28,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     try {
       const token = localStorage.getItem('token');
       const hashtags = editCaption.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-      const { data } = await api.patch(`/posts/${post._id}`, 
+      const { data } = await api.patch(`/posts/${post._id}`,
         { caption: editCaption, hashtags },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -56,12 +56,12 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
 
   const handleLike = async (fromDoubleTap = false) => {
     if (fromDoubleTap && isLiked) return;
-    
+
     // Optimistic update
     const newIsLiked = !isLiked;
     setIsLiked(newIsLiked);
     setLikeCount(prev => newIsLiked ? prev + 1 : prev - 1);
-    
+
     try {
       const token = localStorage.getItem('token');
       const { data } = await api.post(`/posts/${post._id}/like`, {}, {
@@ -104,15 +104,22 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const handleComment = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      const { data } = await api.post(`/posts/${post._id}/comment`, 
-        { text: commentText },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const { data } = await api.post(`/posts/${post._id}/comment`, { text: commentText });
       setComments([data, ...comments]);
       setCommentText('');
     } catch (error) {
       console.error(error);
+    }
+  };
+
+  const handleRepost = async () => {
+    if (window.confirm('Repost this post?')) {
+      try {
+        await api.post(`/posts/${post._id}/repost`);
+        alert('Post reposted successfully!');
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
@@ -125,9 +132,11 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
             <strong style={{ fontSize: '14px' }}>{post.user?.name}</strong>
-            {post.user?.isVerified && <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent)"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>}
+            {post.user?.isVerified && <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--accent)"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
           </div>
-          <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>@{post.user?.username}</span>
+          <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+            {post.repostOf ? `Reposted from @${post.repostOf.user.username}` : `@${post.user?.username}`}
+          </span>
         </div>
         {isOwner && (
           <div style={{ position: 'relative' }}>
@@ -141,36 +150,39 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
           </div>
         )}
       </div>
-      
+
       {post.media?.[0] && (
         <div style={{ position: 'relative', cursor: 'pointer' }} onClick={handleDoubleTap}>
           <img src={post.media[0]} alt="" style={{ width: '100%', display: 'block' }} />
           {showHeart && (
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', animation: 'heartPop 1s ease-out' }}>
               <svg width="100" height="100" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="1" style={{ filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.3))' }}>
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
               </svg>
             </div>
           )}
         </div>
       )}
-      
+
       <div style={{ padding: '0 16px' }}>
         <div style={{ display: 'flex', gap: '16px', padding: '8px 0' }}>
           <button onClick={() => handleLike()} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'transform 0.2s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.8)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? '#ed4956' : 'none'} stroke={isLiked ? '#ed4956' : 'currentColor'} strokeWidth="2" style={{ transition: 'all 0.2s' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? '#ed4956' : 'none'} stroke={isLiked ? '#ed4956' : 'currentColor'} strokeWidth="2" style={{ transition: 'all 0.2s' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
           </button>
           <button onClick={loadComments} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+          </button>
+          <button onClick={handleRepost} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 1l4 4-4 4M7 23l-4-4 4-4M21 5H9a4 4 0 0 0-4 4v3M3 19h12a4 4 0 0 0 4-4v-3" /></svg>
           </button>
         </div>
-        
+
         {likeCount > 0 && (
           <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '8px' }}>
             {likeCount} {likeCount === 1 ? 'like' : 'likes'}
           </div>
         )}
-        
+
         {editing ? (
           <div style={{ padding: '0 16px 12px' }}>
             <textarea className="input" value={editCaption} onChange={(e) => setEditCaption(e.target.value)} rows={3} style={{ resize: 'none', marginBottom: '8px' }} />
@@ -185,7 +197,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             <span>{post.caption}</span>
           </div>
         )}
-        
+
         {post.hashtags && post.hashtags.length > 0 && (
           <div style={{ marginTop: '4px', marginBottom: '8px' }}>
             {post.hashtags.map(tag => (
@@ -193,13 +205,13 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             ))}
           </div>
         )}
-        
+
         <div style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.2px', marginTop: '8px', marginBottom: '12px' }}>
           {post.status.replace('_', ' ')}
           {post.location?.address && <span> • {post.location.address}</span>}
         </div>
       </div>
-      
+
       {showComments && (
         <div style={{ borderTop: '1px solid var(--border)', padding: '16px' }}>
           <form onSubmit={handleComment} style={{ marginBottom: '16px', display: 'flex', gap: '8px' }}>

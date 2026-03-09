@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import api from '../config/api';
+import PostCard from '../components/PostCard';
+import { Post, Comment as IComment } from '../types';
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -24,8 +26,35 @@ export default function Settings() {
     newPassword: '',
     confirmPassword: ''
   });
+  const [activityData, setActivityData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (['liked-posts', 'my-comments', 'my-reposts'].includes(view)) {
+      loadActivity();
+    }
+  }, [view]);
+
+  const loadActivity = async () => {
+    setLoading(true);
+    try {
+      let endpoint = '';
+      if (view === 'liked-posts') endpoint = '/posts/liked';
+      else if (view === 'my-comments') endpoint = '/posts/my-comments';
+      else if (view === 'my-reposts') endpoint = '/posts/my-reposts';
+
+      if (endpoint) {
+        const { data } = await api.get(endpoint);
+        setActivityData(data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handlePersonalUpdate = async () => {
     try {
@@ -148,19 +177,66 @@ export default function Settings() {
           <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Your Activity</h2>
         </div>
         <div className="card" style={{ padding: '0' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+          <div onClick={() => setView('liked-posts')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
             <div style={{ fontSize: '16px' }}>Likes</div>
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Posts you liked</div>
           </div>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+          <div onClick={() => setView('my-comments')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
             <div style={{ fontSize: '16px' }}>Comments</div>
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Your comments</div>
           </div>
-          <div style={{ padding: '16px 20px', cursor: 'pointer' }}>
+          <div onClick={() => setView('my-reposts')} style={{ padding: '16px 20px', cursor: 'pointer' }}>
             <div style={{ fontSize: '16px' }}>Reposts</div>
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Posts you shared</div>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (view === 'liked-posts' || view === 'my-reposts') {
+    return (
+      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+          <button onClick={() => setView('activity')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
+          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>{view === 'liked-posts' ? 'Liked Posts' : 'My Reposts'}</h2>
+        </div>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
+        ) : activityData.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>No posts found</div>
+        ) : (
+          activityData.map(post => (
+            <PostCard key={post._id} post={post} onUpdate={(updated) => setActivityData(activityData.map(p => p._id === updated._id ? updated : p))} />
+          ))
+        )}
+      </div>
+    );
+  }
+
+  if (view === 'my-comments') {
+    return (
+      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+          <button onClick={() => setView('activity')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
+          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>My Comments</h2>
+        </div>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
+        ) : activityData.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>No comments found</div>
+        ) : (
+          <div className="card" style={{ padding: '0' }}>
+            {activityData.map((comment: any) => (
+              <div key={comment._id} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '14px', marginBottom: '4px' }}>{comment.text}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  On post: {comment.post?.caption || 'Deleted Post'} by @{comment.post?.user?.username}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
