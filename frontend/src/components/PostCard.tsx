@@ -1,5 +1,5 @@
-import { useState, FormEvent } from 'react';
-import axios from 'axios';
+import { useState, FormEvent, useRef } from 'react';
+import api from '../config/api';
 import { Post, Comment } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -17,6 +17,10 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const [editing, setEditing] = useState(false);
   const [editCaption, setEditCaption] = useState(post.caption);
   const [showMenu, setShowMenu] = useState(false);
+  const [isLiked, setIsLiked] = useState(post.likes?.length > 0);
+  const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
+  const [showHeart, setShowHeart] = useState(false);
+  const lastTap = useRef(0);
 
   const isOwner = user?.id === (post.user as any)?._id || user?.id === post.user?.id || (user as any)?._id === (post.user as any)?._id || (user as any)?._id === post.user?.id;
 
@@ -24,7 +28,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     try {
       const token = localStorage.getItem('token');
       const hashtags = editCaption.match(/#\w+/g)?.map(tag => tag.slice(1)) || [];
-      const { data } = await axios.patch(`http://localhost:5000/api/posts/${post._id}`, 
+      const { data } = await api.patch(`/posts/${post._id}`, 
         { caption: editCaption, hashtags },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -40,7 +44,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     if (window.confirm('Delete this post?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/posts/${post._id}`, {
+        await api.delete(`/posts/${post._id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (onDelete) onDelete(post._id);
@@ -50,22 +54,46 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     }
   };
 
-  const handleLike = async () => {
+  const handleLike = async (fromDoubleTap = false) => {
+    if (fromDoubleTap && isLiked) return;
+    
+    // Optimistic update
+    const newIsLiked = !isLiked;
+    setIsLiked(newIsLiked);
+    setLikeCount(prev => newIsLiked ? prev + 1 : prev - 1);
+    
     try {
       const token = localStorage.getItem('token');
-      const { data } = await axios.post(`http://localhost:5000/api/posts/${post._id}/like`, {}, {
+      const { data } = await api.post(`/posts/${post._id}/like`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       onUpdate(data);
+      setIsLiked(data.likes?.length > 0);
+      setLikeCount(data.likes?.length || 0);
     } catch (error) {
+      // Revert on error
+      setIsLiked(!newIsLiked);
+      setLikeCount(prev => newIsLiked ? prev - 1 : prev + 1);
       console.error(error);
     }
+  };
+
+  const handleDoubleTap = () => {
+    const now = Date.now();
+    if (now - lastTap.current < 300) {
+      if (!isLiked) {
+        handleLike(true);
+        setShowHeart(true);
+        setTimeout(() => setShowHeart(false), 1000);
+      }
+    }
+    lastTap.current = now;
   };
 
   const loadComments = async () => {
     if (!showComments) {
       const token = localStorage.getItem('token');
-      const { data } = await axios.get(`http://localhost:5000/api/posts/${post._id}/comments`, {
+      const { data } = await api.get(`/posts/${post._id}/comments`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setComments(data);
@@ -77,7 +105,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const { data } = await axios.post(`http://localhost:5000/api/posts/${post._id}/comment`, 
+      const { data } = await api.post(`/posts/${post._id}/comment`, 
         { text: commentText },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -114,21 +142,32 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         )}
       </div>
       
-      {post.media?.[0] && <img src={post.media[0]} alt="" style={{ width: '100%', display: 'block' }} />}
+      {post.media?.[0] && (
+        <div style={{ position: 'relative', cursor: 'pointer' }} onClick={handleDoubleTap}>
+          <img src={post.media[0]} alt="" style={{ width: '100%', display: 'block' }} />
+          {showHeart && (
+            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', animation: 'heartPop 1s ease-out' }}>
+              <svg width="100" height="100" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="1" style={{ filter: 'drop-shadow(0 0 8px rgba(0,0,0,0.3))' }}>
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+              </svg>
+            </div>
+          )}
+        </div>
+      )}
       
       <div style={{ padding: '0 16px' }}>
         <div style={{ display: 'flex', gap: '16px', padding: '8px 0' }}>
-          <button onClick={handleLike} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill={post.likes?.length > 0 ? '#ed4956' : 'none'} stroke={post.likes?.length > 0 ? '#ed4956' : 'currentColor'} strokeWidth="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <button onClick={() => handleLike()} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'transform 0.2s' }} onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.8)'} onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill={isLiked ? '#ed4956' : 'none'} stroke={isLiked ? '#ed4956' : 'currentColor'} strokeWidth="2" style={{ transition: 'all 0.2s' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </button>
           <button onClick={loadComments} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
         
-        {post.likes?.length > 0 && (
+        {likeCount > 0 && (
           <div style={{ fontWeight: 600, fontSize: '14px', marginBottom: '8px' }}>
-            {post.likes.length} {post.likes.length === 1 ? 'like' : 'likes'}
+            {likeCount} {likeCount === 1 ? 'like' : 'likes'}
           </div>
         )}
         

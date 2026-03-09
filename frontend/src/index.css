@@ -42,7 +42,8 @@ body {
   position: relative;
 }
 
-body::before {
+/* Wallpaper background - add wallpaper.png to public folder to enable */
+/* body::before {
   content: '';
   position: fixed;
   top: 0;
@@ -60,7 +61,7 @@ body::before {
 
 [data-theme='dark'] body::before {
   opacity: 0.08;
-}
+} */
 
 .container {
   max-width: 800px;
@@ -119,4 +120,12 @@ body::before {
 .card:hover {
   box-shadow: 0 4px 12px var(--shadow);
   transform: translateY(-2px);
+}
+
+@keyframes heartPop {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  15% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+  30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 }
