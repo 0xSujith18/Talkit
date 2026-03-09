@@ -13,7 +13,8 @@ export default function Sidebar() {
     { path: '/feed', icon: '🏠', label: 'Feed' },
     { path: '/reports', icon: '📊', label: 'Reports' },
     { path: '/notifications', icon: '🔔', label: 'Notifications' },
-    { path: '/profile', icon: '👤', label: 'Profile' }
+    { path: '/profile', icon: '👤', label: 'Profile' },
+    { path: '/settings', icon: '⚙️', label: 'Settings' }
   ];
 
   return (
