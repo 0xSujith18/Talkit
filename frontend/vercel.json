@@ -6,5 +6,11 @@
     "env": {
       "VITE_API_URL": "https://talkit-b.onrender.com/api"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
