@@ -72,7 +72,7 @@ export default function CreateReport() {
     if (files) {
       const filesArray = Array.from(files);
       setMediaFiles([...mediaFiles, ...filesArray]);
-      
+
       const readers = filesArray.map(file => {
         return new Promise<string>((resolve) => {
           const reader = new FileReader();
@@ -80,7 +80,7 @@ export default function CreateReport() {
           reader.readAsDataURL(file);
         });
       });
-      
+
       Promise.all(readers).then(images => {
         setMediaPreviews([...mediaPreviews, ...images]);
       });
@@ -89,26 +89,23 @@ export default function CreateReport() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (mediaFiles.length === 0) {
       alert('At least one photo is required');
       return;
     }
-    
-    if (!formData.location.coordinates.lat || !formData.location.coordinates.lng) {
-      alert('Please enable location');
-      return;
-    }
-    
+
+    // GPS Coordinates are now optional, no alert needed.
+
     setLoading(true);
     try {
       const mediaUrls = await uploadMultipleImages(mediaFiles);
-      
+
       const { data } = await api.post('/reports', {
         ...formData,
         media: mediaUrls
       });
-      
+
       alert(`Report created successfully! Report ID: ${data.reportId}`);
       navigate('/reports');
     } catch (error: any) {
@@ -139,7 +136,7 @@ export default function CreateReport() {
           </div>
         ))}
       </div>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="card" style={{ padding: '32px' }}>
           {/* Step 1: Category Selection */}
@@ -166,7 +163,7 @@ export default function CreateReport() {
                   </div>
                 ))}
               </div>
-              
+
               <div style={{ marginTop: '24px' }}>
                 <label style={{ display: 'block', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>Urgency Level</label>
                 <div style={{ display: 'flex', gap: '12px' }}>
@@ -198,7 +195,7 @@ export default function CreateReport() {
           {step === 2 && (
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>Issue Details</h2>
-              
+
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontWeight: 600, marginBottom: '8px', color: 'var(--text-primary)' }}>Title *</label>
                 <input
@@ -265,7 +262,7 @@ export default function CreateReport() {
           {step === 3 && (
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>Location Information</h2>
-              
+
               <div style={{ marginBottom: '20px' }}>
                 <button
                   type="button"
@@ -273,7 +270,7 @@ export default function CreateReport() {
                   className="btn btn-primary"
                   style={{ width: '100%', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '16px' }}
                 >
-                  📍 Get Current GPS Location
+                  📍 Detect Current GPS Location (Optional)
                 </button>
                 {formData.location.coordinates.lat !== 0 && (
                   <div style={{ marginTop: '12px', padding: '12px', background: '#d1fae5', borderRadius: '8px', border: '2px solid #10b981' }}>
@@ -331,7 +328,7 @@ export default function CreateReport() {
           {step === 4 && (
             <div>
               <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)' }}>Review & Submit</h2>
-              
+
               <div style={{ marginBottom: '24px' }}>
                 <label style={{ display: 'block', fontWeight: 600, marginBottom: '12px', color: 'var(--text-primary)' }}>Privacy Setting</label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
