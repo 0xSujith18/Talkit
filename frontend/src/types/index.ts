@@ -23,6 +23,8 @@ export interface Post {
   category: 'complaint' | 'appreciation';
   hashtags?: string[];
   likes: string[];
+  commentCount?: number;
+  reposts?: number;
   status: 'pending' | 'in_progress' | 'resolved';
   visibilityScore: number;
   createdAt: string;

@@ -228,3 +228,60 @@ body {
   70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 }
+
+/* Global Layout Structure */
+.app-layout {
+  display: flex;
+  justify-content: center;
+  max-width: 1440px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 0 20px;
+  background: var(--bg-secondary);
+}
+
+.app-sidebar-left {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 16px 24px 0;
+  overflow-y: auto;
+  /* Hide scrollbar for clean aesthetic */
+  scrollbar-width: none; 
+}
+.app-sidebar-left::-webkit-scrollbar { display: none; }
+
+.app-main-content {
+  flex: 1;
+  max-width: 720px;
+  min-width: 0; /* Prevent horizontal overflow */
+  padding: 24px 0;
+  /* Add subtle side borders to separate from sidebars on very wide screens if needed, 
+     but keeping it clean as in mockup is better */
+}
+
+.app-sidebar-right {
+  width: 320px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 24px 0 24px 24px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.app-sidebar-right::-webkit-scrollbar { display: none; }
+
+@media (max-width: 1150px) {
+  .app-sidebar-right {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-sidebar-left {
+    display: none;
+  }
+}

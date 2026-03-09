@@ -2,9 +2,13 @@ import { useState, useEffect } from 'react';
 import PostCard from '../components/PostCard';
 import { Post } from '../types';
 import api from '../config/api';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadPosts();
@@ -24,10 +28,53 @@ export default function Feed() {
   };
 
   return (
-    <div className="container">
-      {posts.map(post => (
-        <PostCard key={post._id} post={post} onUpdate={updatePost} />
-      ))}
+    <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+      {/* Inline Post Creator (Visual Only, redirects to create) */}
+      <div
+        className="card"
+        style={{
+          padding: '16px',
+          marginBottom: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          cursor: 'pointer'
+        }}
+        onClick={() => navigate('/create')}
+      >
+        <div style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          background: 'var(--accent)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontWeight: 'bold',
+          fontSize: '16px',
+          flexShrink: 0
+        }}>
+          {user?.name?.charAt(0) || 'U'}
+        </div>
+        <div style={{
+          flex: 1,
+          background: 'var(--bg-secondary)',
+          padding: '12px 16px',
+          borderRadius: 'var(--radius-full)',
+          color: 'var(--text-secondary)',
+          fontSize: '15px'
+        }}>
+          What civic issue did you notice today?
+        </div>
+      </div>
+
+      {/* Feed List */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {posts.map(post => (
+          <PostCard key={post._id} post={post} onUpdate={updatePost} />
+        ))}
+      </div>
     </div>
   );
 }

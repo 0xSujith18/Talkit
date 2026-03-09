@@ -19,6 +19,7 @@ import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import AppLayout from './components/AppLayout';
 
 // Talkit - Civic Engagement Platform
 function App() {
@@ -37,18 +38,18 @@ function App() {
               <Route path="/reset-password/:token" element={<ResetPassword />} />
             </Route>
 
-            {/* Protected Routes */}
+            {/* Protected Routes Wrapped in AppLayout */}
             <Route element={<ProtectedRoute />}>
-              <Route path="/feed" element={<Feed />} />
-              <Route path="/trending" element={<Trending />} />
-              <Route path="/create" element={<CreatePost />} />
-              <Route path="/create-report" element={<CreateReport />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/reports/:id" element={<ReportDetail />} />
-              <Route path="/authority" element={<AuthorityDashboard />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route path="/feed" element={<AppLayout><Feed /></AppLayout>} />
+              <Route path="/trending" element={<AppLayout><Trending /></AppLayout>} />
+              <Route path="/create" element={<AppLayout><CreatePost /></AppLayout>} />
+              <Route path="/create-report" element={<AppLayout><CreateReport /></AppLayout>} />
+              <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
+              <Route path="/reports/:id" element={<AppLayout><ReportDetail /></AppLayout>} />
+              <Route path="/authority" element={<AppLayout><AuthorityDashboard /></AppLayout>} />
+              <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+              <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
+              <Route path="/admin" element={<AppLayout><Admin /></AppLayout>} />
             </Route>
 
             {/* 404 Route */}
