@@ -6,17 +6,19 @@
 
 :root {
   --bg-primary: #ffffff;
-  --bg-secondary: #f0f2f5; /* Softer, Facebook-like grey */
+  --bg-secondary: #f0f2f5;
+  /* Softer, Facebook-like grey */
   --bg-card: #ffffff;
   --text-primary: #050505;
   --text-secondary: #65676B;
   --border: #ccd0d5;
-  --accent: #1877f2; /* Vibrant modern blue */
+  --accent: #1877f2;
+  /* Vibrant modern blue */
   --accent-hover: #166fe5;
   --shadow: rgba(0, 0, 0, 0.08);
   --error: #fa383e;
   --hover: rgba(0, 0, 0, 0.05);
-  
+
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
@@ -140,7 +142,10 @@ body {
 .auth-hero::after {
   content: '';
   position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="20" /></svg>') repeat;
   background-size: 200px;
   opacity: 0.5;
@@ -204,6 +209,7 @@ body {
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -215,6 +221,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -222,21 +229,42 @@ body {
 }
 
 @keyframes heartPop {
-  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
-  15% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
-  30% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  70% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+
+  15% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+
+  30% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  70% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
 }
 
 /* Global Layout Structure */
 .app-layout {
   display: flex;
-  justify-content: center;
-  max-width: 1440px;
+  justify-content: space-between;
+  max-width: 1600px;
+  /* Increased to allow more spread */
   margin: 0 auto;
   min-height: 100vh;
-  padding: 0 20px;
+  padding: 0 40px;
+  /* Increased side padding so it doesn't touch the immediate edge */
   background: var(--bg-secondary);
 }
 
@@ -249,14 +277,18 @@ body {
   padding: 24px 16px 24px 0;
   overflow-y: auto;
   /* Hide scrollbar for clean aesthetic */
-  scrollbar-width: none; 
+  scrollbar-width: none;
 }
-.app-sidebar-left::-webkit-scrollbar { display: none; }
+
+.app-sidebar-left::-webkit-scrollbar {
+  display: none;
+}
 
 .app-main-content {
   flex: 1;
   max-width: 720px;
-  min-width: 0; /* Prevent horizontal overflow */
+  min-width: 0;
+  /* Prevent horizontal overflow */
   padding: 24px 0;
   /* Add subtle side borders to separate from sidebars on very wide screens if needed, 
      but keeping it clean as in mockup is better */
@@ -272,7 +304,10 @@ body {
   overflow-y: auto;
   scrollbar-width: none;
 }
-.app-sidebar-right::-webkit-scrollbar { display: none; }
+
+.app-sidebar-right::-webkit-scrollbar {
+  display: none;
+}
 
 @media (max-width: 1150px) {
   .app-sidebar-right {
