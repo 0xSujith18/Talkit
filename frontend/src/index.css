@@ -6,30 +6,35 @@
 
 :root {
   --bg-primary: #ffffff;
-  --bg-secondary: #f8f9fa;
+  --bg-secondary: #f0f2f5; /* Softer, Facebook-like grey */
   --bg-card: #ffffff;
-  --text-primary: #212529;
-  --text-secondary: #6c757d;
-  --border: #dee2e6;
-  --accent: #495057;
-  --accent-hover: #343a40;
-  --shadow: rgba(0, 0, 0, 0.1);
-  --error: #dc3545;
-  --hover: rgba(73, 80, 87, 0.1);
+  --text-primary: #050505;
+  --text-secondary: #65676B;
+  --border: #ccd0d5;
+  --accent: #1877f2; /* Vibrant modern blue */
+  --accent-hover: #166fe5;
+  --shadow: rgba(0, 0, 0, 0.08);
+  --error: #fa383e;
+  --hover: rgba(0, 0, 0, 0.05);
+  
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 9999px;
 }
 
 [data-theme='dark'] {
-  --bg-primary: #0d0d0d;
-  --bg-secondary: #1a1a1a;
-  --bg-card: #212121;
-  --text-primary: #f8f9fa;
-  --text-secondary: #adb5bd;
-  --border: #343a40;
-  --accent: #adb5bd;
-  --accent-hover: #ced4da;
-  --shadow: rgba(255, 255, 255, 0.05);
-  --error: #dc3545;
-  --hover: rgba(173, 181, 189, 0.1);
+  --bg-primary: #000000;
+  --bg-secondary: #121212;
+  --bg-card: #18191a;
+  --text-primary: #e4e6eb;
+  --text-secondary: #b0b3b8;
+  --border: #3e4042;
+  --accent: #2d88ff;
+  --accent-hover: #4e9af1;
+  --shadow: rgba(255, 255, 255, 0.02);
+  --error: #fa383e;
+  --hover: rgba(255, 255, 255, 0.1);
 }
 
 body {
@@ -40,28 +45,8 @@ body {
   line-height: 1.5;
   margin: 0;
   position: relative;
+  -webkit-font-smoothing: antialiased;
 }
-
-/* Wallpaper background - add wallpaper.png to public folder to enable */
-/* body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('/wallpaper.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.15;
-  z-index: -1;
-  pointer-events: none;
-}
-
-[data-theme='dark'] body::before {
-  opacity: 0.08;
-} */
 
 .container {
   max-width: 800px;
@@ -69,56 +54,149 @@ body {
   padding: 24px;
 }
 
+/* Premium Buttons */
 .btn {
-  padding: 8px 16px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.1s;
+  font-size: 15px;
+  font-weight: 700;
+  transition: all 0.2s ease;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary {
   background: var(--accent);
-  color: white;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(24, 119, 242, 0.2);
 }
 
 .btn-primary:hover {
   background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(24, 119, 242, 0.3);
 }
 
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Premium Inputs */
 .input {
   width: 100%;
-  padding: 9px 8px 7px;
-  border: 1px solid var(--border);
-  border-radius: 3px;
-  font-size: 12px;
-  margin-bottom: 6px;
-  background: var(--bg-secondary);
+  padding: 14px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  margin-bottom: 12px;
+  background: var(--bg-primary);
   color: var(--text-primary);
-  transition: border 0.1s;
+  transition: all 0.2s ease;
   font-family: inherit;
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.8;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--text-secondary);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(24, 119, 242, 0.15);
+}
+
+/* Auth Layout Utilities */
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  background: var(--bg-primary);
+}
+
+.auth-hero {
+  flex: 1;
+  display: none;
+  background: linear-gradient(135deg, var(--accent) 0%, #00d2ff 100%);
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-hero-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+@media (min-width: 900px) {
+  .auth-hero {
+    display: flex;
+  }
+}
+
+.auth-hero::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0; left: 0;
+  background: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="20" /></svg>') repeat;
+  background-size: 200px;
+  opacity: 0.5;
+}
+
+.auth-form-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.auth-form-wrapper {
+  width: 100%;
+  max-width: 400px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.auth-title {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+
+.auth-subtitle {
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.auth-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+
+.auth-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   margin-bottom: 20px;
   overflow: hidden;
-  box-shadow: 0 1px 3px var(--shadow);
+  box-shadow: 0 4px 20px var(--shadow);
   transition: all 0.2s;
-}
-
-.card:last-child {
-  border-bottom: 1px solid var(--border);
 }
 
 @keyframes slideIn {
@@ -135,9 +213,11 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
