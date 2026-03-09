@@ -10,6 +10,13 @@ export default function Register() {
   const { isDark } = useTheme();
   const navigate = useNavigate();
 
+  const roles = [
+    { value: 'citizen', label: '👤 Citizen', desc: 'Report issues & engage' },
+    { value: 'authority', label: '🏛️ Government Officer', desc: 'Manage civic reports' },
+    { value: 'politician', label: '🎖️ MLA/CM/MP', desc: 'Public representative' },
+    { value: 'developer', label: '💻 Developer', desc: 'Build & contribute' }
+  ];
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
@@ -75,6 +82,30 @@ export default function Register() {
             value={formData.phone}
             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
           />
+          
+          <div style={{ marginBottom: '12px', textAlign: 'left' }}>
+            <label style={{ fontSize: '12px', fontWeight: 600, marginBottom: '8px', display: 'block', color: 'var(--text-secondary)' }}>Select Your Role</label>
+            <div style={{ display: 'grid', gap: '8px' }}>
+              {roles.map(role => (
+                <div
+                  key={role.value}
+                  onClick={() => setFormData({ ...formData, role: role.value })}
+                  style={{
+                    padding: '12px',
+                    border: `2px solid ${formData.role === role.value ? 'var(--accent)' : 'var(--border)'}`,
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    background: formData.role === role.value ? 'var(--bg-secondary)' : 'transparent'
+                  }}
+                >
+                  <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '2px' }}>{role.label}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>{role.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {error && <p style={{ color: 'var(--error)', fontSize: '12px', marginBottom: '12px' }}>{error}</p>}
           <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '8px', marginTop: '8px' }}>Sign up</button>
         </form>

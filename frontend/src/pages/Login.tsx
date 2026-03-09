@@ -13,6 +13,13 @@ export default function Login() {
   const location = useLocation();
   const from = (location.state as any)?.from?.pathname || '/feed';
 
+  const personalities = [
+    { icon: '👤', label: 'Citizen', desc: 'Report & engage with civic issues' },
+    { icon: '🏛️', label: 'Government Officer', desc: 'Manage & resolve reports' },
+    { icon: '🎖️', label: 'MLA/CM/MP', desc: 'Public representatives' },
+    { icon: '💻', label: 'Developer', desc: 'Build & contribute to platform' }
+  ];
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
@@ -28,6 +35,29 @@ export default function Login() {
       <div style={{ width: '100%', maxWidth: '350px' }}>
         <div className="card" style={{ padding: '40px 40px 24px', textAlign: 'center', marginBottom: '10px' }}>
           <img src={isDark ? '/logo white.png' : '/logo.png'} alt="Talkit" style={{ width: '120px', margin: '0 auto 24px' }} />
+          
+          {/* Personality Types Info */}
+          <div style={{ marginBottom: '24px', textAlign: 'left' }}>
+            <div style={{ fontSize: '13px', fontWeight: 600, marginBottom: '12px', color: 'var(--text-primary)' }}>Join as:</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              {personalities.map((p, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: '10px',
+                    background: 'var(--bg-secondary)',
+                    borderRadius: '8px',
+                    border: '1px solid var(--border)'
+                  }}
+                >
+                  <div style={{ fontSize: '20px', marginBottom: '4px' }}>{p.icon}</div>
+                  <div style={{ fontSize: '11px', fontWeight: 600, marginBottom: '2px' }}>{p.label}</div>
+                  <div style={{ fontSize: '9px', color: 'var(--text-secondary)', lineHeight: '1.3' }}>{p.desc}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit}>
             <input
               className="input"
