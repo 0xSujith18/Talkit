@@ -12,6 +12,7 @@ export interface IUser extends Document {
   isVerified: boolean;
   avatar?: string;
   location?: string;
+  birthday?: string;
   deletionScheduledAt?: Date;
   comparePassword(password: string): Promise<boolean>;
 }
@@ -27,6 +28,7 @@ const userSchema = new Schema<IUser>({
   isVerified: { type: Boolean, default: false },
   avatar: String,
   location: String,
+  birthday: String,
   deletionScheduledAt: Date
 }, { timestamps: true });
 

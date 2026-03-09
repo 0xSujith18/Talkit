@@ -7,6 +7,7 @@ import Comment from '../models/Comment.js';
 import Notification from '../models/Notification.js';
 import VerificationRequest from '../models/VerificationRequest.js';
 import PasswordReset from '../models/PasswordReset.js';
+import VerificationCode from '../models/VerificationCode.js';
 import { auth, AuthRequest } from '../middleware/auth.js';
 
 import nodemailer from 'nodemailer';
@@ -258,6 +259,80 @@ router.post('/reset-password', async (req, res) => {
     await PasswordReset.deleteMany({ user: user._id });
 
     res.json({ message: 'Password reset successful' });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.post('/send-verification-code', auth, async (req: AuthRequest, res) => {
+  try {
+    const { code } = req.body;
+    const expiresAt = new Date(Date.now() + 600000); // 10 minutes
+
+    await VerificationCode.deleteMany({ user: req.user!._id });
+    await VerificationCode.create({ user: req.user!._id, code, expiresAt });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: req.user!.email,
+      subject: 'Talkit - Verify Your Password Change',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #bc1888;">Verify Your Password Change</h2>
+          <p>Hello ${req.user!.name},</p>
+          <p>You requested to change your password. Use the verification code below:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #bc1888;">${code}</div>
+          </div>
+          <p>This code will expire in 10 minutes.</p>
+          <p>If you didn't request this, please ignore this email and secure your account.</p>
+          <p>Best regards,<br>The Talkit Team</p>
+        </div>
+      `
+    };
+
+    try {
+      await transporter.sendMail(mailOptions);
+      res.json({ message: 'Verification code sent' });
+    } catch (mailError) {
+      console.error('Error sending email:', mailError);
+      res.status(500).json({ error: 'Failed to send verification code' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.patch('/password', auth, async (req: AuthRequest, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await User.findById(req.user!._id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    if (!(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+router.patch('/personal', auth, async (req: AuthRequest, res) => {
+  try {
+    const { phone, birthday } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user!._id,
+      { phone, birthday },
+      { new: true }
+    ).select('-password');
+
+    res.json({ user });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

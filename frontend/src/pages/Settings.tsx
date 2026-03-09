@@ -1,327 +1,52 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import api from '../config/api';
-import PostCard from '../components/PostCard';
-import { Post, Comment as IComment } from '../types';
+import SettingsMain from '../components/settings/SettingsMain';
+import SettingsActivity from '../components/settings/SettingsActivity';
+import SettingsSaved from '../components/settings/SettingsSaved';
+import SettingsPersonal from '../components/settings/SettingsPersonal';
+import SettingsSecurity from '../components/settings/SettingsSecurity';
+import SettingsProfile from '../components/settings/SettingsProfile';
 
 export default function Settings() {
-  const { user, logout } = useAuth();
-  const { isDark, toggleTheme } = useTheme();
   const [view, setView] = useState('main');
-  const [profileData, setProfileData] = useState({
-    username: user?.username || '',
-    name: user?.name || '',
-    phone: '',
-    location: ''
-  });
-  const [personalData, setPersonalData] = useState({
-    phone: user?.phone || '',
-    email: user?.email || '',
-    birthday: ''
-  });
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
-  const [activityData, setActivityData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const { logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (['liked-posts', 'my-comments', 'my-reposts'].includes(view)) {
-      loadActivity();
-    }
-  }, [view]);
-
-  const loadActivity = async () => {
-    setLoading(true);
-    try {
-      let endpoint = '';
-      if (view === 'liked-posts') endpoint = '/posts/liked';
-      else if (view === 'my-comments') endpoint = '/posts/my-comments';
-      else if (view === 'my-reposts') endpoint = '/posts/my-reposts';
-
-      if (endpoint) {
-        const { data } = await api.get(endpoint);
-        setActivityData(data);
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
   };
 
-  const handlePersonalUpdate = async () => {
-    try {
-      await api.patch('/auth/personal', personalData);
-      setMessage('✓ Saved');
-      setTimeout(() => setMessage(''), 2000);
-    } catch (error) {
-      setMessage('Failed');
+  const renderView = () => {
+    switch (view) {
+      case 'activity':
+        return <SettingsActivity onBack={() => setView('main')} />;
+      case 'saved':
+        return <SettingsSaved onBack={() => setView('main')} />;
+      case 'personal':
+        return <SettingsPersonal onBack={() => setView('main')} />;
+      case 'security':
+        return <SettingsSecurity onBack={() => setView('main')} />;
+      case 'profile':
+        return <SettingsProfile onBack={() => setView('main')} />;
+      default:
+        return (
+          <SettingsMain
+            onNavigate={setView}
+            onLogout={handleLogout}
+            isDark={isDark}
+            toggleTheme={toggleTheme}
+          />
+        );
     }
   };
-
-  const handleDeactivate = async () => {
-    if (window.confirm('Deactivate account temporarily?')) {
-      setMessage('Deactivation feature coming soon');
-    }
-  };
-
-  const handlePasswordChange = async () => {
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setMessage('Passwords do not match');
-      return;
-    }
-    try {
-      await api.patch('/auth/password', {
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
-      });
-      setMessage('✓ Password changed');
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      setTimeout(() => setMessage(''), 2000);
-    } catch (error) {
-      setMessage('Failed to change password');
-    }
-  };
-
-  const handleProfileUpdate = async () => {
-    try {
-      await api.patch('/auth/profile', profileData);
-      setMessage('✓ Saved');
-      setTimeout(() => setMessage(''), 2000);
-    } catch (error) {
-      setMessage('Failed');
-    }
-  };
-
-  const handleDeleteAccount = async () => {
-    if (window.confirm('Delete account permanently?')) {
-      try {
-        await api.delete('/auth/account');
-        logout();
-        navigate('/login');
-      } catch (error) {
-        setMessage('Failed');
-      }
-    }
-  };
-
-  if (view === 'personal') {
-    return (
-      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => setView('main')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Personal Details</h2>
-        </div>
-        <div className="card" style={{ padding: '24px', marginBottom: '20px' }}>
-          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>Contact Info</div>
-          <input className="input" type="tel" value={personalData.phone} onChange={(e) => setPersonalData({ ...personalData, phone: e.target.value })} placeholder="Phone Number" />
-          <input className="input" type="email" value={personalData.email} onChange={(e) => setPersonalData({ ...personalData, email: e.target.value })} placeholder="Email" />
-          <input className="input" type="date" value={personalData.birthday} onChange={(e) => setPersonalData({ ...personalData, birthday: e.target.value })} placeholder="Birthday" />
-          {message && <div style={{ padding: '12px', background: 'var(--bg-secondary)', borderRadius: '8px', marginBottom: '12px', textAlign: 'center' }}>{message}</div>}
-          <button onClick={handlePersonalUpdate} className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Save</button>
-        </div>
-        <div className="card" style={{ padding: '0' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
-            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>Account Ownership</div>
-          </div>
-          <div onClick={handleDeactivate} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ fontSize: '16px' }}>Deactivate Account</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Temporarily disable your account</div>
-          </div>
-          <div onClick={handleDeleteAccount} style={{ padding: '16px 20px', cursor: 'pointer' }}>
-            <div style={{ fontSize: '16px', color: 'var(--error)' }}>Delete Account</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Permanently delete your account</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (view === 'security') {
-    return (
-      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => setView('main')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Password & Security</h2>
-        </div>
-        <div className="card" style={{ padding: '24px', marginBottom: '20px' }}>
-          <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '12px' }}>Change Password</div>
-          <input className="input" type="password" value={passwordData.currentPassword} onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })} placeholder="Current Password" />
-          <input className="input" type="password" value={passwordData.newPassword} onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })} placeholder="New Password" />
-          <input className="input" type="password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} placeholder="Confirm New Password" />
-          {message && <div style={{ padding: '12px', background: 'var(--bg-secondary)', borderRadius: '8px', marginBottom: '12px', textAlign: 'center' }}>{message}</div>}
-          <button onClick={handlePasswordChange} className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Change Password</button>
-        </div>
-        <div className="card" style={{ padding: '0' }}>
-          <div onClick={() => setMessage('Password reset link sent to email')} style={{ padding: '16px 20px', cursor: 'pointer' }}>
-            <div style={{ fontSize: '16px' }}>Forgot Password</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Reset your password via email</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (view === 'activity') {
-    return (
-      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => setView('main')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Your Activity</h2>
-        </div>
-        <div className="card" style={{ padding: '0' }}>
-          <div onClick={() => setView('liked-posts')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ fontSize: '16px' }}>Likes</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Posts you liked</div>
-          </div>
-          <div onClick={() => setView('my-comments')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
-            <div style={{ fontSize: '16px' }}>Comments</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Your comments</div>
-          </div>
-          <div onClick={() => setView('my-reposts')} style={{ padding: '16px 20px', cursor: 'pointer' }}>
-            <div style={{ fontSize: '16px' }}>Reposts</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Posts you shared</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (view === 'liked-posts' || view === 'my-reposts') {
-    return (
-      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => setView('activity')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>{view === 'liked-posts' ? 'Liked Posts' : 'My Reposts'}</h2>
-        </div>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
-        ) : activityData.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>No posts found</div>
-        ) : (
-          activityData.map(post => (
-            <PostCard key={post._id} post={post} onUpdate={(updated) => setActivityData(activityData.map(p => p._id === updated._id ? updated : p))} />
-          ))
-        )}
-      </div>
-    );
-  }
-
-  if (view === 'my-comments') {
-    return (
-      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => setView('activity')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>My Comments</h2>
-        </div>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '40px' }}>Loading...</div>
-        ) : activityData.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>No comments found</div>
-        ) : (
-          <div className="card" style={{ padding: '0' }}>
-            {activityData.map((comment: any) => (
-              <div key={comment._id} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)' }}>
-                <div style={{ fontSize: '14px', marginBottom: '4px' }}>{comment.text}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                  On post: {comment.post?.caption || 'Deleted Post'} by @{comment.post?.user && typeof comment.post.user === 'object' ? (comment.post.user as any).username : 'user'}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  if (view === 'saved') {
-    return (
-      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => setView('main')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Saved Posts</h2>
-        </div>
-        <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-secondary)' }}>No saved posts yet</div>
-      </div>
-    );
-  }
-
-  if (view === 'profile') {
-    return (
-      <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
-          <button onClick={() => setView('main')} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', marginRight: '16px' }}>←</button>
-          <h2 style={{ fontSize: '20px', fontWeight: 600 }}>Edit Account</h2>
-        </div>
-        <div className="card" style={{ padding: '24px' }}>
-          <input className="input" value={profileData.username} onChange={(e) => setProfileData({ ...profileData, username: e.target.value })} placeholder="Username" />
-          <input className="input" value={profileData.name} onChange={(e) => setProfileData({ ...profileData, name: e.target.value })} placeholder="Name" />
-          <input className="input" value={profileData.phone} onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })} placeholder="Phone" />
-          <input className="input" value={profileData.location} onChange={(e) => setProfileData({ ...profileData, location: e.target.value })} placeholder="Location" />
-          {message && <div style={{ padding: '12px', background: 'var(--bg-secondary)', borderRadius: '8px', marginBottom: '12px', textAlign: 'center' }}>{message}</div>}
-          <button onClick={handleProfileUpdate} className="btn btn-primary" style={{ width: '100%', padding: '12px' }}>Save</button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="container" style={{ maxWidth: '600px', paddingTop: '20px' }}>
-      <h1 style={{ fontSize: '24px', fontWeight: 700, marginBottom: '24px' }}>Settings</h1>
-
-      <div className="card" style={{ padding: '0', marginBottom: '20px' }}>
-        <div onClick={() => setView('activity')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '16px' }}>Your Activity</span>
-          <span style={{ color: 'var(--text-secondary)' }}>›</span>
-        </div>
-
-        <div onClick={() => setView('saved')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '16px' }}>Saved Posts</span>
-          <span style={{ color: 'var(--text-secondary)' }}>›</span>
-        </div>
-
-        <div onClick={() => setView('personal')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '16px' }}>Personal Details</span>
-          <span style={{ color: 'var(--text-secondary)' }}>›</span>
-        </div>
-
-        <div onClick={() => setView('security')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '16px' }}>Password & Security</span>
-          <span style={{ color: 'var(--text-secondary)' }}>›</span>
-        </div>
-
-        <div onClick={() => setView('profile')} style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '16px' }}>Edit Account</span>
-          <span style={{ color: 'var(--text-secondary)' }}>›</span>
-        </div>
-
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: '16px' }}>Theme</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{isDark ? 'Dark' : 'Light'}</div>
-          </div>
-          <button onClick={toggleTheme} className="btn" style={{ padding: '6px 12px', fontSize: '13px' }}>{isDark ? '☀️' : '🌙'}</button>
-        </div>
-
-        <div onClick={logout} style={{ padding: '16px 20px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '16px' }}>Logout</span>
-          <span style={{ color: 'var(--text-secondary)' }}>›</span>
-        </div>
-      </div>
-
-      <div className="card" style={{ padding: '0' }}>
-        <div onClick={handleDeleteAccount} style={{ padding: '16px 20px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '16px', color: 'var(--error)' }}>Delete Account</span>
-          <span style={{ color: 'var(--error)' }}>›</span>
-        </div>
-      </div>
+    <div className="container" style={{ maxWidth: '600px', paddingTop: '20px', paddingBottom: '40px' }}>
+      {renderView()}
     </div>
   );
 }
