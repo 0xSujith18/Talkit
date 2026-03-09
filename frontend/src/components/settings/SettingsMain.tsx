@@ -1,3 +1,6 @@
+import { useState } from 'react';
+import ConfirmModal from '../ConfirmModal';
+
 interface SettingsMainProps {
   onNavigate: (view: string) => void;
   onLogout: () => void;
@@ -6,6 +9,13 @@ interface SettingsMainProps {
 }
 
 export default function SettingsMain({ onNavigate, onLogout, isDark, toggleTheme }: SettingsMainProps) {
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const handleLogout = () => {
+    setShowLogoutModal(false);
+    onLogout();
+  };
+
   return (
     <>
       <h1 style={{ fontSize: '28px', fontWeight: 700, marginBottom: '32px', letterSpacing: '-0.5px' }}>Settings</h1>
@@ -38,12 +48,23 @@ export default function SettingsMain({ onNavigate, onLogout, isDark, toggleTheme
           </button>
         </div>
 
-        <MenuItem onClick={onLogout} label="Logout" />
+        <MenuItem onClick={() => setShowLogoutModal(true)} label="Logout" />
       </div>
 
       <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
         <MenuItem onClick={() => onNavigate('personal')} label="Delete Account" isDestructive />
       </div>
+
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+        title="Log Out?"
+        message="Are you sure you want to log out of your account?"
+        confirmText="Log Out"
+        cancelText="Cancel"
+        isDestructive
+      />
     </>
   );
 }

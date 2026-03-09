@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../config/api';
+import ConfirmModal from '../ConfirmModal';
 
 interface SettingsPersonalProps {
   onBack: () => void;
@@ -17,6 +18,8 @@ export default function SettingsPersonal({ onBack }: SettingsPersonalProps) {
   });
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleUpdate = async () => {
     setLoading(true);
@@ -32,15 +35,17 @@ export default function SettingsPersonal({ onBack }: SettingsPersonalProps) {
   };
 
   const handleDeleteAccount = async () => {
-    if (window.confirm('⚠️ Are you sure? This action cannot be undone. Your account will be permanently deleted in 7 days.')) {
-      try {
-        await api.delete('/auth/account');
-        alert('Account scheduled for deletion in 7 days. You can cancel by logging in within this period.');
-        logout();
-        navigate('/login');
-      } catch (error: any) {
-        setMessage(error.response?.data?.error || 'Failed to delete account');
-      }
+    setDeleting(true);
+    try {
+      await api.delete('/auth/account');
+      setShowDeleteModal(false);
+      logout();
+      navigate('/login');
+    } catch (error: any) {
+      setMessage(error.response?.data?.error || 'Failed to delete account');
+      setShowDeleteModal(false);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -135,7 +140,7 @@ export default function SettingsPersonal({ onBack }: SettingsPersonalProps) {
         </div>
         
         <div 
-          onClick={handleDeleteAccount} 
+          onClick={() => setShowDeleteModal(true)} 
           style={{ 
             padding: '16px 20px', 
             cursor: 'pointer',
@@ -149,6 +154,18 @@ export default function SettingsPersonal({ onBack }: SettingsPersonalProps) {
           <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Permanently delete your account and all data</div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+        title="Delete Account?"
+        message="Are you sure you want to delete your account? This action cannot be undone. Your account will be permanently deleted in 7 days."
+        confirmText="Delete Account"
+        cancelText="Cancel"
+        isDestructive
+        loading={deleting}
+      />
     </>
   );
 }
