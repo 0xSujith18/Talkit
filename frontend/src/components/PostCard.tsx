@@ -136,7 +136,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
           </div>
           <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
             {post.repostOf && typeof post.repostOf === 'object' && post.repostOf.user
-              ? `Reposted from @${post.repostOf.user.username}`
+              ? `Reposted from @${(post.repostOf.user as any)?.username || 'user'}`
               : `@${post.user?.username || 'user'}`}
           </span>
         </div>
@@ -208,10 +208,12 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
           </div>
         )}
 
-        <div style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.2px', marginTop: '8px', marginBottom: '12px' }}>
-          {post.status.replace('_', ' ')}
-          {post.location?.address && <span> • {post.location.address}</span>}
-        </div>
+        {post.status && (
+          <div style={{ fontSize: '10px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.2px', marginTop: '8px', marginBottom: '12px' }}>
+            {post.status.replace('_', ' ')}
+            {post.location?.address && <span> • {post.location.address}</span>}
+          </div>
+        )}
       </div>
 
       {showComments && (
