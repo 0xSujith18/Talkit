@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import axios from 'axios';
+import api from '../config/api';
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -29,7 +29,7 @@ export default function Settings() {
 
   const handlePersonalUpdate = async () => {
     try {
-      await axios.patch('http://localhost:5000/api/auth/personal', personalData);
+      await api.patch('/auth/personal', personalData);
       setMessage('✓ Saved');
       setTimeout(() => setMessage(''), 2000);
     } catch (error) {
@@ -49,7 +49,7 @@ export default function Settings() {
       return;
     }
     try {
-      await axios.patch('http://localhost:5000/api/auth/password', {
+      await api.patch('/auth/password', {
         currentPassword: passwordData.currentPassword,
         newPassword: passwordData.newPassword
       });
@@ -63,7 +63,7 @@ export default function Settings() {
 
   const handleProfileUpdate = async () => {
     try {
-      await axios.patch('http://localhost:5000/api/auth/profile', profileData);
+      await api.patch('/auth/profile', profileData);
       setMessage('✓ Saved');
       setTimeout(() => setMessage(''), 2000);
     } catch (error) {
@@ -74,7 +74,7 @@ export default function Settings() {
   const handleDeleteAccount = async () => {
     if (window.confirm('Delete account permanently?')) {
       try {
-        await axios.delete('http://localhost:5000/api/auth/account');
+        await api.delete('/auth/account');
         logout();
         navigate('/login');
       } catch (error) {
@@ -225,7 +225,7 @@ export default function Settings() {
           <span style={{ fontSize: '16px' }}>Edit Account</span>
           <span style={{ color: 'var(--text-secondary)' }}>›</span>
         </div>
-        
+
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <div style={{ fontSize: '16px' }}>Theme</div>

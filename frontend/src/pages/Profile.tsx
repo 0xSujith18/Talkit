@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import PostCard from '../components/PostCard';
 import { Post } from '../types';
@@ -23,10 +23,7 @@ export default function Profile() {
     const userId = user?.id || (user as any)?._id;
     if (!userId) return;
     try {
-      const token = localStorage.getItem('token');
-      const { data } = await axios.get(`http://localhost:5000/api/posts/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await api.get(`/posts/user/${userId}`);
       setPosts(data);
       const totalLikes = data.reduce((sum: number, p: Post) => sum + p.likes.length, 0);
       setStats({ posts: data.length, likes: totalLikes });
@@ -38,10 +35,7 @@ export default function Profile() {
   const handleUpdate = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      await axios.patch('http://localhost:5000/api/auth/profile', formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.patch('/auth/profile', formData);
       setEditing(false);
       window.location.reload();
     } catch (error) {
@@ -104,7 +98,7 @@ export default function Profile() {
           </form>
         )}
       </div>
-      
+
       <h3 style={{ marginBottom: '20px' }}>My Posts</h3>
       {posts.map(post => (
         <PostCard key={post._id} post={post} onUpdate={updatePost} onDelete={deletePost} />

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import { useAuth } from '../context/AuthContext';
 
 interface VerificationRequest {
@@ -32,7 +32,7 @@ export default function Admin() {
 
   const loadRequests = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/auth/verification-requests');
+      const { data } = await api.get('/auth/verification-requests');
       setRequests(data);
     } catch (error) {
       console.error(error);
@@ -41,7 +41,7 @@ export default function Admin() {
 
   const handleApprove = async (_requestId: string, userId: string) => {
     try {
-      await axios.post(`http://localhost:5000/api/auth/verify-user/${userId}`);
+      await api.post(`/auth/verify-user/${userId}`);
       loadRequests();
     } catch (error) {
       console.error(error);
@@ -50,7 +50,7 @@ export default function Admin() {
 
   const handleReject = async (requestId: string) => {
     try {
-      await axios.delete(`http://localhost:5000/api/auth/verification-request/${requestId}`);
+      await api.delete(`/auth/verification-request/${requestId}`);
       loadRequests();
     } catch (error) {
       console.error(error);
@@ -72,7 +72,7 @@ export default function Admin() {
     <div className="container" style={{ maxWidth: '800px', paddingTop: '20px' }}>
       <div className="card" style={{ padding: '16px', marginBottom: '20px' }}>
         <h2 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>Verification Requests</h2>
-        
+
         {requests.length === 0 ? (
           <p style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '20px' }}>No pending requests</p>
         ) : (
@@ -82,7 +82,7 @@ export default function Admin() {
                 <strong>{request.user.name}</strong>
                 <span style={{ color: 'var(--text-secondary)', fontSize: '14px', marginLeft: '8px' }}>@{request.user.username}</span>
               </div>
-              
+
               <div style={{ fontSize: '13px', marginBottom: '8px', lineHeight: '1.6' }}>
                 <div><strong>Full Name:</strong> {request.fullName}</div>
                 <div><strong>Category:</strong> {request.category}</div>
@@ -90,9 +90,9 @@ export default function Admin() {
                 <div><strong>Position:</strong> {request.position}</div>
                 <div><strong>ID Proof:</strong> <a href={request.idProof} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>View Document</a></div>
               </div>
-              
+
               <p style={{ fontSize: '14px', marginBottom: '12px', padding: '8px', background: 'var(--bg-card)', borderRadius: '4px' }}>{request.reason}</p>
-              
+
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => handleApprove(request._id, request.user._id)} className="btn btn-primary" style={{ padding: '6px 16px' }}>
                   ✓ Approve

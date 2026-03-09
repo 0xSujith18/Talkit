@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../config/api';
 import PostCard from '../components/PostCard';
 import { Post } from '../types';
 
@@ -12,7 +12,7 @@ export default function Trending() {
 
   const loadTrending = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/posts/trending');
+      const { data } = await api.get('/posts/trending');
       setPosts(data);
     } catch (error) {
       console.error(error);
