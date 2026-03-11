@@ -45,8 +45,9 @@ export default function Settings() {
   };
 
   return (
-    <div className="container" style={{ maxWidth: '600px', paddingTop: '20px', paddingBottom: '40px' }}>
+    <div className="max-w-[800px] mx-auto pt-5 pb-10 px-6">
       {renderView()}
     </div>
+
   );
 }

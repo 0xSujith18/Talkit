@@ -4,21 +4,22 @@ import Widgets from './Widgets';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="app-layout">
+        <div className="flex justify-center max-w-[1500px] mx-auto min-h-screen bg-[var(--bg-primary)]">
             {/* Left Sidebar */}
-            <div className="app-sidebar-left">
+            <div className="w-[250px] shrink-0 sticky top-0 h-screen py-3 pr-3 overflow-y-auto no-scrollbar border-r border-[var(--border)] hidden md:block">
                 <Sidebar />
             </div>
 
             {/* Main Scrollable Content */}
-            <div className="app-main-content">
+            <div className="flex-1 max-w-[750px] min-w-0 border-r border-[var(--border)]">
                 {children}
             </div>
 
             {/* Right Sidebar (Widgets) */}
-            <div className="app-sidebar-right">
+            <div className="w-[350px] shrink-0 sticky top-0 h-screen py-3 pl-6 overflow-y-auto no-scrollbar hidden lg:block">
                 <Widgets />
             </div>
         </div>
     );
 }
+

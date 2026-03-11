@@ -1,4 +1,7 @@
+@import "tailwindcss";
+
 * {
+
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -259,7 +262,7 @@ body {
 .app-layout {
   display: flex;
   justify-content: center;
-  max-width: 1300px;
+  max-width: 1500px;
   margin: 0 auto;
   min-height: 100vh;
   gap: 0;
@@ -284,7 +287,7 @@ body {
 
 .app-main-content {
   flex: 1;
-  max-width: 600px;
+  max-width: 750px;
   min-width: 0;
   padding: 0;
   border-right: 1px solid var(--border);
