@@ -12,6 +12,7 @@ import Reports from './pages/Reports';
 import ReportDetail from './pages/ReportDetail';
 import AuthorityDashboard from './pages/AuthorityDashboard';
 import Profile from './pages/Profile';
+import Notifications from './pages/Notifications'; // tickle
 import Settings from './pages/Settings';
 import Admin from './pages/Admin';
 import ForgotPassword from './pages/ForgotPassword';
@@ -48,6 +49,7 @@ function App() {
               <Route path="/reports/:id" element={<AppLayout><ReportDetail /></AppLayout>} />
               <Route path="/authority" element={<AppLayout><AuthorityDashboard /></AppLayout>} />
               <Route path="/profile" element={<AppLayout><Profile /></AppLayout>} />
+              <Route path="/notifications" element={<AppLayout><Notifications /></AppLayout>} />
               <Route path="/settings" element={<AppLayout><Settings /></AppLayout>} />
               <Route path="/admin" element={<AppLayout><Admin /></AppLayout>} />
             </Route>

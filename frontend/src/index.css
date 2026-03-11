@@ -19,9 +19,9 @@
   --error: #fa383e;
   --hover: rgba(0, 0, 0, 0.05);
 
-  --radius-sm: 6px;
-  --radius-md: 12px;
-  --radius-lg: 20px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
   --radius-full: 9999px;
 }
 
@@ -198,9 +198,9 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px var(--shadow);
+  box-shadow: 0 1px 3px var(--shadow);
   transition: all 0.2s;
 }
 
@@ -258,25 +258,23 @@ body {
 /* Global Layout Structure */
 .app-layout {
   display: flex;
-  justify-content: space-between;
-  max-width: 1600px;
-  /* Increased to allow more spread */
+  justify-content: center;
+  max-width: 1300px;
   margin: 0 auto;
   min-height: 100vh;
-  padding: 0 40px;
-  /* Increased side padding so it doesn't touch the immediate edge */
-  background: var(--bg-secondary);
+  gap: 0;
+  background: var(--bg-primary);
 }
 
 .app-sidebar-left {
-  width: 280px;
+  width: 250px;
   flex-shrink: 0;
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 24px 16px 24px 0;
+  padding: 12px 12px 12px 0;
+  border-right: 1px solid var(--border);
   overflow-y: auto;
-  /* Hide scrollbar for clean aesthetic */
   scrollbar-width: none;
 }
 
@@ -286,21 +284,19 @@ body {
 
 .app-main-content {
   flex: 1;
-  max-width: 720px;
+  max-width: 600px;
   min-width: 0;
-  /* Prevent horizontal overflow */
-  padding: 24px 0;
-  /* Add subtle side borders to separate from sidebars on very wide screens if needed, 
-     but keeping it clean as in mockup is better */
+  padding: 0;
+  border-right: 1px solid var(--border);
 }
 
 .app-sidebar-right {
-  width: 320px;
+  width: 350px;
   flex-shrink: 0;
   position: sticky;
   top: 0;
   height: 100vh;
-  padding: 24px 0 24px 24px;
+  padding: 12px 0 12px 24px;
   overflow-y: auto;
   scrollbar-width: none;
 }
