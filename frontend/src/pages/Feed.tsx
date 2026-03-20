@@ -28,13 +28,14 @@ export default function Feed() {
   };
 
   return (
-    <div style={{ maxWidth: '680px', margin: '0 auto' }}>
+    <div style={{ padding: '24px', width: '100%' }}>
       {/* Inline Post Creator (Visual Only, redirects to create) */}
       <div
         className="card"
         style={{
           padding: '16px',
-          marginBottom: '24px',
+          margin: '0 auto 24px',
+          maxWidth: '680px',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
@@ -70,7 +71,12 @@ export default function Feed() {
       </div>
 
       {/* Feed List */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+        gap: '24px',
+        alignItems: 'start' 
+      }}>
         {posts.map(post => (
           <PostCard key={post._id} post={post} onUpdate={updatePost} />
         ))}
