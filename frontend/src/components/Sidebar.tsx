@@ -26,7 +26,7 @@ export default function Sidebar() {
       background: 'transparent'
     }}>
       {/* Brand Header */}
-      <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px', padding: '0 12px' }}>
+      <div style={{ marginBottom: '40px', display: 'flex', alignItems: 'center', gap: '14px', padding: '0 16px' }}>
         <img
           src={isDark ? '/logo white.png' : '/logo.png'}
           alt="Talkit"
@@ -54,9 +54,9 @@ export default function Sidebar() {
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px',
-                padding: '14px 10px',
-                borderRadius: '8px',
+                gap: '14px',
+                padding: '14px 16px',
+                borderRadius: '12px',
                 textDecoration: 'none',
                 color: active ? 'var(--accent)' : 'var(--text-secondary)',
                 fontSize: '16px',
@@ -78,7 +78,7 @@ export default function Sidebar() {
       </nav>
 
       {/* User Info Bottom */}
-      <div style={{ marginTop: 'auto', padding: '16px 12px', display: 'flex', alignItems: 'center', gap: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'background 0.2s' }}
+      <div style={{ marginTop: 'auto', padding: '16px', display: 'flex', alignItems: 'center', gap: '14px', borderRadius: '12px', cursor: 'pointer', transition: 'background 0.2s' }}
         onMouseEnter={(e) => e.currentTarget.style.background = 'var(--hover)'}
         onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
       >

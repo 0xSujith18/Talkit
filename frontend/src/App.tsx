@@ -5,7 +5,6 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Feed from './pages/Feed';
-import Trending from './pages/Trending';
 import CreatePost from './pages/CreatePost';
 import CreateReport from './pages/CreateReport';
 import Reports from './pages/Reports';
@@ -42,7 +41,6 @@ function App() {
             {/* Protected Routes Wrapped in AppLayout */}
             <Route element={<ProtectedRoute />}>
               <Route path="/feed" element={<AppLayout><Feed /></AppLayout>} />
-              <Route path="/trending" element={<AppLayout><Trending /></AppLayout>} />
               <Route path="/create" element={<AppLayout><CreatePost /></AppLayout>} />
               <Route path="/create-report" element={<AppLayout><CreateReport /></AppLayout>} />
               <Route path="/reports" element={<AppLayout><Reports /></AppLayout>} />
