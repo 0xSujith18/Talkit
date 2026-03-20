@@ -28,7 +28,7 @@ export default function Feed() {
   };
 
   return (
-    <div style={{ padding: '24px', width: '100%' }}>
+    <div style={{ padding: '48px 24px 24px', width: '100%' }}>
       {/* Inline Post Creator (Visual Only, redirects to create) */}
       <div
         className="card"
