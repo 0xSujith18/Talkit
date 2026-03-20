@@ -10,7 +10,7 @@ export default function Sidebar() {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/feed', icon: '🏠', label: 'Feed' },
+    { path: '/feed', icon: '🏠', label: 'Home' },
     { path: '/reports', icon: '📊', label: 'Reports' },
     { path: '/notifications', icon: '🔔', label: 'Notifications' },
     { path: '/profile', icon: '👤', label: 'Profile' },
