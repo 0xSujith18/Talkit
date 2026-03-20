@@ -34,8 +34,8 @@ export default function Feed() {
         className="card"
         style={{
           padding: '16px',
-          margin: '0 auto 24px',
-          maxWidth: '680px',
+          margin: '0 0 24px 0',
+          width: '100%',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
@@ -73,7 +73,7 @@ export default function Feed() {
       {/* Feed List */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
         gap: '24px',
         alignItems: 'start' 
       }}>
