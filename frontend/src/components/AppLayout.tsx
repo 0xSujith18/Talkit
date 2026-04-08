@@ -1,6 +1,5 @@
 import React from 'react';
 import Sidebar from './Sidebar';
-import Widgets from './Widgets';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -15,10 +14,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 {children}
             </div>
 
-            {/* Right Sidebar (Widgets) */}
-            <div className="w-[350px] shrink-0 sticky top-0 h-screen pt-12 pb-6 pl-6 overflow-y-auto no-scrollbar hidden lg:block">
-                <Widgets />
-            </div>
+            {/* Right Sidebar (Widgets) removed as per user request */}
         </div>
     );
 }
